@@ -33,6 +33,7 @@ class ACL2Kernel(Kernel):
 
     def __init__(self, **kwargs):
         Kernel.__init__(self, **kwargs)
+        self.jpy_prompt = 'JPY-ACL2>'
         self._start_acl2()
 
     def _start_acl2(self):
@@ -43,10 +44,10 @@ class ACL2Kernel(Kernel):
                       (set-state-ok t)
                       (defun jupyter-prompt (channel state)
                         (declare (xargs :mode :program))
-                        (fmt1 "JPY-ACL2>" '() 0 channel state nil)))
+                        (fmt1 "%s" '() 0 channel state nil)))
                     (set-ld-prompt 'jupyter-prompt state)
-                    (reset-prehistory)'''
-            self.acl2wrapper = replwrap.REPLWrapper(os.environ['ACL2'], 'ACL2 !>', prompt_change_cmd, 'JPY-ACL2>')
+                    (reset-prehistory)''' % self.jpy_prompt
+            self.acl2wrapper = replwrap.REPLWrapper(os.environ['ACL2'], 'ACL2 !>', prompt_change_cmd, self.jpy_prompt)
             self.acl2wrapper.run_command(';', timeout=None) # This discards the output of progn.
             self.acl2wrapper.run_command(';', timeout=None) # This discards the output of reset-prehistory.
         finally:
@@ -91,6 +92,9 @@ class ACL2Kernel(Kernel):
                     more_output = self.acl2wrapper.run_command(';', timeout=0)
                 except TIMEOUT:
                     break
+                if len(output) > 0 and output[-1] == '"':
+                    # WARNING: Only 1 command allowed per code block.
+                    output += self.jpy_prompt
                 output += more_output
         except KeyboardInterrupt:
             self.acl2wrapper.child.sendintr()
