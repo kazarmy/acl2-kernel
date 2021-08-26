@@ -8,7 +8,7 @@ import signal
 import re
 import os
 
-__version__ = '0.2.6'
+__version__ = '0.2.7'
 
 class ACL2Kernel(Kernel):
     implementation = 'acl2_kernel'
@@ -45,11 +45,14 @@ class ACL2Kernel(Kernel):
                       (defun jupyter-prompt (channel state)
                         (declare (xargs :mode :program))
                         (fmt1 "%s" '() 0 channel state nil)))
+                    (defttag t)
                     (set-ld-prompt 'jupyter-prompt state)
+                    (defttag nil)
                     (reset-prehistory)''' % self.jpy_prompt
             self.acl2wrapper = replwrap.REPLWrapper(os.environ['ACL2'], 'ACL2 !>', prompt_change_cmd, self.jpy_prompt)
-            self.acl2wrapper.run_command(';', timeout=None) # This discards the output of progn.
-            self.acl2wrapper.run_command(';', timeout=None) # This discards the output of reset-prehistory.
+            # Discard the output of prompt_change_cmd.
+            for i in range(3):
+                self.acl2wrapper.run_command(';', timeout=None)
         finally:
             signal.signal(signal.SIGINT, sig)
         

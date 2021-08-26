@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "acl2-kernel"
-version = "0.2.6"
+version = "0.2.7"
 description = "Jupyter Kernel for ACL2"
 authors = ["TANIGUCHI Masaya <m@docs.casa>"]
 license = "Apache-2.0"
@@ -19,7 +19,7 @@ regex = "^2021.4.4"
 
 [tool.poetry.dev-dependencies]
 jupyter = "^1.0.0"
-python-language-server = "^0.33.1"
+python-language-server = "^0.36.0"
 autopep8 = "^1.5.3"
 
 [build-system]
